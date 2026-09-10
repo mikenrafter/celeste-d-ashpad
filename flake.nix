@@ -18,7 +18,7 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            dotnet-sdk_8
+            dotnet-sdk_9
             mono
             git
             curl
@@ -28,15 +28,22 @@
 
           shellHook = ''
             export CELESTE_PATH="''${CELESTE_PATH:-${defaultCelestePath}}"
-            if [ -f "$CELESTE_PATH/Celeste.exe" ]; then
+            # Celeste.exe pre-Everest, Celeste.dll once MiniInstaller has
+            # patched it onto modern .NET -- either means the dir is right.
+            if [ -f "$CELESTE_PATH/Celeste.exe" ] || [ -f "$CELESTE_PATH/Celeste.dll" ]; then
               echo "celeste-d-ashpad devshell: CELESTE_PATH=$CELESTE_PATH (found)"
             else
-              echo "celeste-d-ashpad devshell: CELESTE_PATH=$CELESTE_PATH (Celeste.exe NOT found here — export CELESTE_PATH to override)"
+              echo "celeste-d-ashpad devshell: CELESTE_PATH=$CELESTE_PATH (Celeste not found here — export CELESTE_PATH to override)"
             fi
             if [ -f "$CELESTE_PATH/MMHOOK_Celeste.dll" ]; then
               echo "Everest: installed (MMHOOK_Celeste.dll present)"
             else
               echo "Everest: not installed yet — run scripts/install-everest.sh"
+            fi
+            if [ -L "$CELESTE_PATH/Mods/CelesteDashpad" ]; then
+              echo "Mod: symlinked into CELESTE_PATH/Mods/CelesteDashpad -- 'dotnet build' here updates it in place"
+            else
+              echo "Mod: not deployed -- ln -s \$PWD \"\$CELESTE_PATH/Mods/CelesteDashpad\""
             fi
           '';
         };

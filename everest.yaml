@@ -1,9 +1,11 @@
-# Confirm the Everest dependency version against your installed build
-# (check CELESTE_PATH/Mods/Cache or Everest's in-game version string)
-# once install-everest.sh has finished, then update the pin below.
+# Built-from-source Everest reports itself as "0.0.0-dev", which its own
+# dependency check always treats as satisfying any pin (Everest.Loader.
+# VersionSatisfiesDependency special-cases installed major==minor==0), so
+# this low placeholder is fine against install-everest.sh's output. Raise
+# it only if you install a real numbered Everest release instead.
 - Name: CelesteDashpad
   Version: 0.1.0
-  DLL: bin/Debug/net452/CelesteDashpad.dll
+  DLL: bin/Debug/net8.0/CelesteDashpad.dll
   Dependencies:
     - Name: Everest
-      Version: 1.4000.0
+      Version: 1.0.0

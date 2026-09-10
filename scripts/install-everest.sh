@@ -30,20 +30,43 @@ fi
 cd "$BUILD_DIR/Everest"
 
 echo "building Everest (Release)..."
-dotnet build Everest.sln -c Release
+# Mirrors .azure-pipelines/build.yml's own recipe: `dotnet publish` (not
+# `build`) on each of these three projects, then merge their publish/
+# output directories. `build` alone leaves out transitive runtime deps
+# that MiniInstaller lazily loads at runtime instead of referencing
+# directly (e.g. Mono.Cecil.dll, pulled in through Celeste.Mod.mm's
+# MonoMod.Patcher ProjectReference) -- publish's dependency closure
+# picks those up, plain build doesn't.
+STAGE_DIR="$BUILD_DIR/stage-main"
+rm -rf "$STAGE_DIR"
+mkdir -p "$STAGE_DIR"
 
-MINI_INSTALLER_OUT="$(find . -type f -iname 'MiniInstaller.dll' -path '*Release*' | head -n1)"
-if [ -z "$MINI_INSTALLER_OUT" ]; then
-  echo "error: could not find built MiniInstaller.dll under $BUILD_DIR/Everest -- inspect the build output above" >&2
-  exit 1
-fi
-MINI_INSTALLER_DIR="$(dirname "$MINI_INSTALLER_OUT")"
+for proj in NETCoreifier Celeste.Mod.mm MiniInstaller; do
+  echo "publishing $proj..."
+  dotnet publish "$proj/$proj.csproj" -c Release
+  cp -r "$proj/bin/Release/net8.0/publish/." "$STAGE_DIR/"
+done
 
 echo "staging build output into $CELESTE_PATH..."
-cp -r "$MINI_INSTALLER_DIR"/. "$CELESTE_PATH/"
+cp -r "$STAGE_DIR/." "$CELESTE_PATH/"
+
+# MiniInstaller also expects the `lib-ext` submodule's native libraries
+# (Steamworks.NET.dll, per-platform lib64-*/ folders, etc.) staged as
+# CELESTE_PATH/everest-lib. Official releases bundle this alongside
+# MiniInstaller; building from source has to do it by hand.
+echo "staging lib-ext as $CELESTE_PATH/everest-lib..."
+rm -rf "$CELESTE_PATH/everest-lib"
+cp -r "$BUILD_DIR/Everest/lib-ext" "$CELESTE_PATH/everest-lib"
 
 echo "running MiniInstaller against $CELESTE_PATH..."
-(cd "$CELESTE_PATH" && mono MiniInstaller.dll)
+# MiniInstaller itself now builds as a modern .NET (not Mono) app, with a
+# self-contained native executable dropped alongside the dll -- run that
+# directly rather than `mono MiniInstaller.dll` (throws a TypeLoadException
+# on System.AppDomain, since that dll isn't a Mono/.NET-Framework assembly).
+# NixOS has no system ICU by default, which the self-contained host wants
+# purely for console text encoding -- run in globalization-invariant mode
+# instead of pulling in libicu.
+(cd "$CELESTE_PATH" && chmod +x ./MiniInstaller-linux && DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 ./MiniInstaller-linux)
 
 if [ -f "$CELESTE_PATH/MMHOOK_Celeste.dll" ]; then
   echo "Everest installed: MMHOOK_Celeste.dll present in $CELESTE_PATH"

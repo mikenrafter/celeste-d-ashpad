@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M24TGZ3C9NAR2WKA5FT28CA4",
+  "session_id": "268384f7-4db7-4970-a027-5c3fb5b74c85",
+  "strategy": "manual-commit",
+  "created_at": "2026-09-10T04:51:56.905915635Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "Source/DashpadModule.cs",
+    "celeste-d-ashpad.csproj",
+    "everest.yaml",
+    "flake.nix",
+    "scripts/install-everest.sh"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 220,
+    "cache_creation_tokens": 188372,
+    "cache_read_tokens": 14277232,
+    "output_tokens": 82936,
+    "api_call_count": 110
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-09-10T04:51:56.799693778Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 96,
+    "human_modified": 25,
+    "human_removed": 0,
+    "total_committed": 96,
+    "total_lines_changed": 121,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}

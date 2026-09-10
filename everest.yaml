@@ -1,0 +1,9 @@
+# Confirm the Everest dependency version against your installed build
+# (check CELESTE_PATH/Mods/Cache or Everest's in-game version string)
+# once install-everest.sh has finished, then update the pin below.
+- Name: CelesteDashpad
+  Version: 0.1.0
+  DLL: bin/Debug/net452/CelesteDashpad.dll
+  Dependencies:
+    - Name: Everest
+      Version: 1.4000.0

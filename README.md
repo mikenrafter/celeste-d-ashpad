@@ -31,13 +31,15 @@ Where U is up and left diagonally, O is up and right diagonally, period is down 
 
 ### Why it didn't work before
 
-Having both dash and aim dash in <direction> bound to a single key resulted in a scenario where you had to hold the dash key for 2 input frames.  
-This is a problem, because Celeste is a challenging platformer where there is already plenty of precision necessary. Having to hold the dash button for longer isn't helpful.  
+Having both dash and aim dash in <direction> bound to a single key resulted in a scenario where you had to hold the dash key for 2 input frames.
+
+This is a problem, because Celeste is a challenging platformer where there is already plenty of precision necessary. Having to hold the dash button for longer isn't helpful.
+
 This isn't an issue normally since the direction key and dash input typically have a lot of temporal separation. Anyway, this mod makes this control scheme much nicer to use.
 
 #### A rough edge still present
 
-I added the diagonal keys not because I wanted them originally (though having come up with the idea, I am well pleased with how it works), but instead because even with this mod,  
+I added the diagonal keys not because I wanted them originally (though having come up with the idea, I am well pleased with how it works), but instead because even with this mod, 
 having dash activated in the same frame as your direction is challenging when it comes to diagonals. You have to be very precise and land your 2 key presses in the same split second.
 Most of the time, this works just fine. On occasion, you mess up in a frustrating way. More often than I'd like. I did extend the duration of the input frames (not sure what effect 
 that has on speedrun rules, though I'd be surprised if this mod ever got approved for that anyway) in order to make this problem less pronounced. I'm sure there's some cleaner solution, 

@@ -39,7 +39,7 @@ This isn't an issue normally since the direction key and dash input typically ha
 
 I added the diagonal keys not because I wanted them originally (though having come up with the idea, I am well pleased with how it works), but instead because even with this mod,  
 having dash activated in the same frame as your direction is challenging when it comes to diagonals. You have to be very precise and land your 2 key presses in the same split second.
-Most of the time, this works just fine. On occasion, you mess up in a frustrating way. More often than I'd like. I did extend the duration of the input frames (not sure what effect  
+Most of the time, this works just fine. On occasion, you mess up in a frustrating way. More often than I'd like. I did extend the duration of the input frames (not sure what effect 
 that has on speedrun rules, though I'd be surprised if this mod ever got approved for that anyway) in order to make this problem less pronounced. I'm sure there's some cleaner solution,  
 but diagonal keys is a low-tech solution that keeps the spirit of the control scheme.
 

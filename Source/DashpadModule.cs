@@ -26,20 +26,38 @@ namespace Celeste.Mod.Dashpad {
     // exactly the two Player.Update calls that matter: the press frame
     // (where the coroutine starts but doesn't consume it) and the frame
     // after (where it does).
+    //
+    // Gotcha (found via frame-by-frame logging): Input.Dash.Pressed is not
+    // a clean single-frame edge -- Celeste's own input buffer keeps it true
+    // across several consecutive Update calls whenever the button can't be
+    // acted on yet (e.g. the player is still mid-dash from a previous
+    // press). Keying the "clear next call" arm off every Pressed==true call
+    // let a stale clear -- armed by an earlier no-op frame while still
+    // dashing -- fire right after the *real* dash-start frame, wiping the
+    // override before the following frame could consume it. That's what
+    // caused fast same-key double-taps to have their second dash fall back
+    // to a stale direction instead of the newly tapped one.
+    //
+    // Fix for that: only set the override on a frame where the player isn't
+    // already in the Dash state (a dash can only start from there), and
+    // only arm the clear off the actual StateMachine transition into Dash
+    // -- never off Pressed alone. That makes the clear fire exactly once,
+    // exactly one call after the dash that owns it actually started,
+    // regardless of how noisy Input.Dash.Pressed is around it.
     public class DashpadModule : EverestModule {
 
         public static DashpadModule Instance { get; private set; }
 
         public override Type SettingsType => null;
 
-        private const float DirectionBufferSeconds = 0.1f; // ~6 frames at 60fps
+        private const float DirectionBufferSeconds = 0.133f; // ~8 frames at 60fps
 
         private Vector2 bufferedDirection;
         private float bufferedDirectionTimer;
 
-        // Arms on the press frame (after OverrideDashDirection is set, so
-        // the *next* call knows to clear it once that call's orig() --
-        // which is where the coroutine actually consumes it -- has run).
+        // Arms once a dash-start transition is observed, so the *next* call
+        // knows to clear the override once that call's orig() -- which is
+        // where the coroutine actually consumes it -- has run.
         private bool clearOverrideNextCall;
 
         public DashpadModule() {
@@ -66,14 +84,20 @@ namespace Celeste.Mod.Dashpad {
                 bufferedDirectionTimer -= Engine.DeltaTime;
             }
 
-            if (Input.Dash.Pressed && bufferedDirectionTimer > 0f) {
+            bool wasDashing = player.StateMachine.State == Player.StDash;
+            if (!wasDashing && Input.Dash.Pressed && bufferedDirectionTimer > 0f) {
                 player.OverrideDashDirection = bufferedDirection;
-                clearOverrideNextCall = true;
             }
 
             orig(player);
 
-            if (clearAfterThisCall) {
+            bool justStartedDash = !wasDashing && player.StateMachine.State == Player.StDash;
+            if (justStartedDash) {
+                // The override we just set is for THIS dash and is consumed
+                // next call -- don't let a stale clear from a previous,
+                // unrelated arm wipe it out from under it.
+                clearOverrideNextCall = true;
+            } else if (clearAfterThisCall) {
                 player.OverrideDashDirection = null;
             }
         }
